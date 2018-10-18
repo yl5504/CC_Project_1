@@ -40,11 +40,13 @@ function draw(){
       s.acc = createVector(0,0);
       s.show();
 
+
+     //when all the little balls are outside window I want them to move back on window, to new specific position, but failed. It shows static, without moving from outside to the specific position
+
       var targetposition = createVector(n * sin(n) + width/2, n * cos(n) + height/2);
       s.attractbehavior(targetposition);
 
       s.update();
-      //s.pos = createVector(n * sin(n) + width/2, n * cos(n) + height/2);
 
     }
   }
