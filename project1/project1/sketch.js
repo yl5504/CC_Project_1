@@ -19,11 +19,12 @@ function setup(){
 
 function draw(){
   background(0);
+  var mouse = createVector(mouseX,mouseY)
   var flag = true;
   for(var n = 0; n<500; n++){
     var s = stars[n];
     s.show();
-    s.behaviors();
+    s.scatter(mouse);
     s.update();
 
     if (s.pos.x>0 && s.pos.y>0 && s.pos.x<width && s.pos.y<height){
@@ -36,18 +37,19 @@ function draw(){
   if (flag == true){
     for(var n = 0; n<500; n++){
       var s = stars[n];
-      s.vel = createVector(0,0);
-      s.acc = createVector(0,0);
+      //s.vel = createVector(0,0);
+      //s.acc = createVector(0,0);
+
       s.show();
 
 
-     //Problem!!!! when all the little balls are outside window I want them to move back on window, to new specific position, but failed. It shows static, without moving from outside to the specific position
+     //Problem!!!! when all the little balls are outside window I want them to move back on window, to new specific position, but failed. It won't stop moving!!
 
       var targetposition = createVector(n * sin(n) + width/2, n * cos(n) + height/2);
-      s.attractbehavior(targetposition);
+      s.arrive(targetposition);
 
       s.update();
-
+      //s.pos = createVector(n * sin(n) + width/2, n * cos(n) + height/2)
     }
   }
 
@@ -61,6 +63,8 @@ class Star{
     this.vel= createVector();
     this.acc= createVector();
     this.target = createVector();
+    this.maxspeed = 30;
+    this.maxforce = 10;
   }
   
   show(){
@@ -69,21 +73,22 @@ class Star{
   ellipse(this.pos.x,this.pos.y,this.r,this.r)
   }
   
-  behaviors(){
-    var mouse =  createVector(mouseX,mouseY);
-    var scattervector= this.scatter(mouse);
-    this.applyForce(scattervector);
-  }
   
   scatter(target){
-  var distvect = p5.Vector.sub(this.pos,target);
-  if(distvect.mag()<200){
-    return distvect;
-    }
+  var desired = p5.Vector.sub(this.pos,target);
+  var d = desired.mag();
+  if(d<200){
+      var m = map(d, 0, 100, 0, this.maxspeed);
+      desired.setMag(m);
+    var steer = p5.Vector.sub(desired, this.vel);
+    steer.limit(this.maxforce); // Limit to maximum steering force
+    this.applyForce(steer);
+  }
   }
   
   applyForce(f){
     this.acc.add(f);
+    this.acc.setMag(1.0);
   }
   
   update(){
@@ -93,17 +98,25 @@ class Star{
   }
 
 
-  attractbehavior(target){ 
-    var attractforce = p5.Vector.sub(target,this.pos);
-    this.applyForce(attractforce);
+  arrive(target){ 
+
+    var desired = p5.Vector.sub(target, this.position); // A vector pointing from the location to the target
+    var d = desired.mag();
+    // Scale with arbitrary damping within 100 pixels
+    if (d < 100) {
+      var m = map(d, 0, 100, 0, this.maxspeed);
+      desired.setMag(m);
+    } else {
+      desired.setMag(this.maxspeed);
+    }
+
+    // Steering = Desired minus Velocity
+    var steer = p5.Vector.sub(desired, this.vel);
+    steer.limit(this.maxforce); // Limit to maximum steering force
+    this.applyForce(steer);
   }
 
-  // arrive(target){
-  //   var distvect = p5.Vector.sub(this.pos,target);
-  //   if (distvect.mag()<50){
-  //     return distvect;
-  //   }
-  // }
+
   
   
 
