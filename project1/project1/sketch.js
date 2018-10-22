@@ -22,6 +22,7 @@ function setup(){
     starstwo[n] = new Star(x,y,col,r);
   }
 
+  //havent use this part yet
   for(var n = 0; n < 500; n++){   
     var col=n%250;    
     var r= sin(n) * 8;
@@ -40,8 +41,8 @@ function draw(){
   for(var n = 0; n<stars.length; n++){
     var s = stars[n];
     s.show();
-    s.scatter(mouse);
-    s.update();
+    s.scatter(mouse);    //move your mouse to erase every dots!
+    s.update();    
 
     if (s.pos.x>0 && s.pos.y>0 && s.pos.x<width && s.pos.y<height){
       flag = false;
@@ -49,7 +50,7 @@ function draw(){
   }
 
 
-
+  // erase every dots, and then new thing will show!!
   if (flag == true){
 
     for(var n = 0; n<500; n++){
@@ -64,6 +65,7 @@ function draw(){
       t.update();
       pop()
 
+      //press mouse to attract the dots
       if(mouseIsPressed){
         var mouse = createVector(mouseX,mouseY)
         var center = createVector(width/2,height/2)
@@ -71,15 +73,22 @@ function draw(){
         t.arrive(tar);
       }
 
+      // press key space to see random dots flying
+      if(keyIsPressed && key ==' '){
+        t.pos = createVector(random(-width/2,width/2),random(-height/2,height/2))
+      }
      
 
     }
+
+    //a pattern orbiting like planets
     planet();
 
 
   }
 
 
+  //this part is useless now..
   if (keyIsPressed && key ==' '){
     for(var n = 0; n<starsthree.length;n++){
       var h = starsthree[n];
