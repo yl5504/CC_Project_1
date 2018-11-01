@@ -61,12 +61,12 @@ function draw(){
   // erase every dots, and then new thing will show!!
   if (flag == true){
 
-    image(bg,0,0,width,height)
+    image(bg,0,0,width,height);
 
-
+    //paint the path of constellation
     if (painting){
-      current = mouse
-      paths[paths.length-1].addnewline(current);
+      current = mouse  
+      paths[paths.length-1].addnewline(current);  //add new particles
       previous = current
     }
     for(var i = 0; i<paths.length;i++){
@@ -74,61 +74,49 @@ function draw(){
     }
 
     for(var n = 0; n<starstwo.length; n++){
-      push()
+      push();
       translate(width/2,height/2);
       var rot = map(mouseX, 0, width,-1,1);
       rotate(rot * frameCount/200)        
       var t = starstwo[n];
       t.show();
-      let target = createVector(n/z*sin(n), n/z*cos(n))
-      t.arrive(target);
+      let target = createVector(n*sin(n)/z, n*cos(n)/z)
+      t.arrive(target);  //balls will travel from random position to organized spiral place
       t.update();
-      pop()
-
-      //press mouse to attract the dots
-      // if(mouseIsPressed){
-      //   var mouse = createVector(mouseX,mouseY)
-      //   var center = createVector(width/2,height/2)
-      //   var tar = p5.Vector.sub(center,mouse)
-      //   t.arrive(tar);
-      // }
-
-    
+      pop();
 
       // press key space to see random dots flying
       if(keyIsPressed && key ==' '){
-        t.pos = createVector(random(-width/2,width/2),random(-height/2,height/2))
+        t.pos = createVector(random(-width/2,width/2),random(-height/2,height/2));
       }
-     
     }
 
+    // press to see the spiral diameter shrink or amplify
     if (keyIsPressed) {
-        if (key == 'a') z -= 2;
-        else if (key == 's') z += 2;
-        else if (key == 'd') z *= -1;
-        else if (key == 'r') z = 1;
+      if (key == 'a') z -= 2;
+      else if (key == 's') z += 2;
+      else if (key == 'd') z *= -1;
+      else if (key == 'r') z = 1;
 
-        for (var n = 0;n<starstwo.length;n++){
-          push()
-          translate(width/2,height/2)
-          var t = starstwo[n];
-          var r= sin(n) * 12 ;
-          var x = n*sin(n)/z; 
-          var y = n*cos(n)/z;
-          t.show();
-          pop()
-        }
+      for (var n = 0;n<starstwo.length;n++){
+        push()
+        translate(width/2,height/2)
+        var t = starstwo[n];
+        var r= sin(n) * 12 ;
+        var x = n*sin(n)/z; 
+        var y = n*cos(n)/z;
+        t.show();
+        pop()
+      }
     }
 
     //a pattern orbiting like planets
     planet();
   }
-
-
 }
 
 
-
+//a pattern orbiting like planets, color and rotation change with mouse
 function planet(){
   var colorfrom = color(312,75,87,100);
   var colorto = color(55,75,87,100);
@@ -162,22 +150,21 @@ class Star{
   }
   
   show(){
-  fill(this.col,100,100);
-  noStroke();
-  ellipse(this.pos.x,this.pos.y,this.r,this.r)
+    fill(this.col,100,100);
+    noStroke();
+    ellipse(this.pos.x,this.pos.y,this.r,this.r)
   }
-  
   
   scatter(target){
-  var desired = p5.Vector.sub(this.pos,target);
-  var d = desired.mag();
-  if(d<200){
-      var m = map(d, 0, 100, 0, this.maxspeed);
-      desired.setMag(m);
-    var steer = p5.Vector.sub(desired, this.vel);
-    steer.limit(this.maxforce); // Limit to maximum steering force
-    this.applyForce(steer);
-  }
+    var desired = p5.Vector.sub(this.pos,target);
+    var d = desired.mag();
+    if(d<200){
+        var m = map(d, 0, 100, 0, this.maxspeed);
+        desired.setMag(m);
+      var steer = p5.Vector.sub(desired, this.vel);
+      steer.limit(this.maxforce); // Limit to maximum steering force
+      this.applyForce(steer);
+    }
   }
   
   applyForce(f){
@@ -209,20 +196,19 @@ class Star{
 }
 
 
-
-
+//drawing part
 class Path{
   constructor(){
     this.particles = []
   }
+  addnewline(position){
+    this.particles.push(new Particle(position)) 
+  }
   show(){
     for(var i = 0; i<this.particles.length;i++){
-      this.particles[i].show(this.particles[i+1])
-      this.particles[i].update();
+      this.particles[i].show(this.particles[i-1]) //new particles and lines
+      this.particles[i].update(); //fade away as time goes
     }
-  }
-  addnewline(position){
-    this.particles.push(new Particle(position))
   }
 }
 
@@ -235,12 +221,12 @@ class Particle{
     stroke(255,this.lifespan)
     fill(255,this.lifespan)
     ellipse(this.position.x,this.position.y,10,10)
-    if (another){
+    if (another){ //if the mouse is still painting, add line
       line(this.position.x,this.position.y,another.position.x,another.position.y)
     }
   }
   update(){
-    this.lifespan = this.lifespan -1
+    this.lifespan = this.lifespan -2 //color fading away
   }
 }
 
